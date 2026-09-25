@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +31,7 @@ public class User
 	private Long userId;
 	
 	@Column(name = "username", nullable = false, unique = true,  length = 50)
-	private String userName;
+	private String username;
 	
 	@Column(nullable = false, unique = true, length = 100)
 	private String email;
@@ -57,5 +59,19 @@ public class User
 	
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
+	
+	@PrePersist
+	protected void onCreate() 
+	{
+	    OffsetDateTime now = OffsetDateTime.now();
+	    createdAt = now;
+	    updatedAt = now;
+	}
+
+	@PreUpdate
+	protected void onUpdate()
+	{
+	    updatedAt = OffsetDateTime.now();
+	}
 
 }
