@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.banking.user.dto.LoginRequest;
 import com.banking.user.dto.LoginResponse;
 import com.banking.user.entity.User;
+import com.banking.user.exception.InvalidCredentialsException;
 import com.banking.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,11 @@ public class AuthService
 	
 	public LoginResponse login(LoginRequest request)
 	{
-		User user = userRepository.findByUsername(request.getUsername()).orElseThrow(()-> new RuntimeException("Invalid username or password"));
+		User user = userRepository.findByUsername(request.getUsername()).orElseThrow(()-> new InvalidCredentialsException("Invalid username or password"));
 		
 		if(!passwordEncoder.matches(request.getPassword(), user.getPasswordHash()))
 		{
-			throw new RuntimeException("Invalid username or password");
+			throw new InvalidCredentialsException("Invalid username or password");
 		}
 		
 		String token = jwtService.generateToken(user.getUsername(), user.getRole());

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.banking.user.dto.UserRegistrationRequest;
 import com.banking.user.dto.UserRegistrationResponse;
 import com.banking.user.entity.User;
+import com.banking.user.exception.UserAlreadyExistsException;
 import com.banking.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -18,15 +19,14 @@ public class UserService
 	private final PasswordEncoder passwordEncoder;
 	public UserRegistrationResponse registerUser(UserRegistrationRequest request)
 	{
-		//need to add custom exceptions using global handler for username and email
 		if(userRepository.existsByUsername(request.getUsername()))
 		{
-			throw new RuntimeException("Username already exists");
+			throw new UserAlreadyExistsException("Username already exists");
 		}
 
 		if(userRepository.existsByEmail(request.getEmail()))
 		{
-			throw new RuntimeException("Email already exists");
+			throw new UserAlreadyExistsException("Email already exists");
 		}
 
 		User user = User.builder()
