@@ -6,6 +6,7 @@ import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -29,4 +30,35 @@ public class JwtService
 				.compact();
 	}
 
+	public String extractUsername(String token)
+	{
+		return getClaims(token).getSubject();
+	}
+	
+	public String extractRole(String token)
+	{
+		return getClaims(token).get("role", String.class);
+	}
+	
+	public boolean isTokenValid(String token)
+	{
+		try
+		{
+			getClaims(token);
+			return true;
+			
+		} catch (Exception e)
+		{
+			return false;
+		}
+	}
+	
+	private Claims getClaims(String token)
+	{
+		return Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
+	}
 }

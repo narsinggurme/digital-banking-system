@@ -23,12 +23,12 @@ public class UserService
 		{
 			throw new RuntimeException("Username already exists");
 		}
-		
+
 		if(userRepository.existsByEmail(request.getEmail()))
 		{
 			throw new RuntimeException("Email already exists");
 		}
-		
+
 		User user = User.builder()
 				.username(request.getUsername())
 				.email(request.getEmail())
@@ -39,18 +39,18 @@ public class UserService
 				.role("CUSTOMER")
 				.status("ACTIVE")
 				.build();
-		
-		 User savedUser = userRepository.save(user);
-		 
-		 return UserRegistrationResponse.builder()
-				 .userId(savedUser.getUserId())
-				 .username(savedUser.getUsername())
-				 .email(savedUser.getEmail())
-				 .firstName(savedUser.getFirstName())
-				 .lastName(savedUser.getLastName())
-				 .phoneNumber(savedUser.getPhoneNumber())
-				 .role(savedUser.getRole())
-				 .status(savedUser.getStatus())
-				 .build();
+
+		User savedUser = userRepository.save(user);
+
+		return UserRegistrationResponse.builder()
+				.userId(savedUser.getUserId())
+				.username(savedUser.getUsername())
+				.email(savedUser.getEmail())
+				.firstName(savedUser.getFirstName())
+				.lastName(savedUser.getLastName())
+				.phoneNumber(savedUser.getPhoneNumber())
+				.role(savedUser.getRole())
+				.status(savedUser.getStatus())
+				.build();
 	}
 }
