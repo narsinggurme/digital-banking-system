@@ -18,6 +18,7 @@ public class UserService
 	private final PasswordEncoder passwordEncoder;
 	public UserRegistrationResponse registerUser(UserRegistrationRequest request)
 	{
+		//need to add custom exceptions using global handler for username and email
 		if(userRepository.existsByUsername(request.getUsername()))
 		{
 			throw new RuntimeException("Username already exists");
@@ -51,7 +52,5 @@ public class UserService
 				 .role(savedUser.getRole())
 				 .status(savedUser.getStatus())
 				 .build();
-		  
 	}
-
 }
