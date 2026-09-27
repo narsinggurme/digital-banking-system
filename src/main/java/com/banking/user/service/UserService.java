@@ -3,10 +3,12 @@ package com.banking.user.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.banking.user.dto.UserProfileResponse;
 import com.banking.user.dto.UserRegistrationRequest;
 import com.banking.user.dto.UserRegistrationResponse;
 import com.banking.user.entity.User;
 import com.banking.user.exception.UserAlreadyExistsException;
+import com.banking.user.exception.UserNotFoundException;
 import com.banking.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -51,6 +53,38 @@ public class UserService
 				.phoneNumber(savedUser.getPhoneNumber())
 				.role(savedUser.getRole())
 				.status(savedUser.getStatus())
+				.build();
+	}
+	
+	public UserProfileResponse getUserProfile(String username)
+	{
+		User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
+		
+		return 	UserProfileResponse.builder()
+				.userId(user.getUserId())
+				.username(user.getUsername())
+				.email(user.getEmail())
+				.firstName(user.getFirstName())
+				.lastName(user.getLastName())
+				.phoneNumber(user.getPhoneNumber())
+				.role(user.getRole())
+				.status(user.getStatus())
+				.build();
+	}
+	
+	public UserProfileResponse getUserById(Long usedId)
+	{
+		User user = userRepository.findById(usedId).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		return UserProfileResponse.builder()
+				.userId(user.getUserId())
+				.username(user.getUsername())
+				.firstName(user.getFirstName())
+				.lastName(user.getLastName())
+				.email(user.getEmail())
+				.phoneNumber(user.getPhoneNumber())
+				.role(user.getRole())
+				.status(user.getStatus())
 				.build();
 	}
 }

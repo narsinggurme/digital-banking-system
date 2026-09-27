@@ -2,12 +2,15 @@ package com.banking.user.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.banking.user.dto.UserProfileResponse;
 import com.banking.user.dto.UserRegistrationRequest;
 import com.banking.user.dto.UserRegistrationResponse;
 import com.banking.user.service.UserService;
@@ -31,9 +34,18 @@ public class UserController
 	}
 	
 	@GetMapping("/profile")
-	public ResponseEntity<String> getProfile()
+	public ResponseEntity<UserProfileResponse> getProfile(Authentication authentication)
 	{
-		return ResponseEntity.ok("Authenticated user can access this endpoint");
+		UserProfileResponse response = userService.getUserProfile(authentication.getName());
+		return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/{userId}")
+	public ResponseEntity<UserProfileResponse> getUserById(@PathVariable Long userId)
+	{
+		UserProfileResponse response = userService.getUserById(userId);
+		
+		return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping("/admin")
