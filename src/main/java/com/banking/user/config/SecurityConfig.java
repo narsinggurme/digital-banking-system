@@ -34,9 +34,7 @@ public class SecurityConfig
 
     	.exceptionHandling(exception ->  exception
     			.authenticationEntryPoint((request,response, authExceptiion) -> 
-    			response.sendError(
-    					HttpServletResponse.SC_UNAUTHORIZED))
-    			)
+    			response.sendError( HttpServletResponse.SC_UNAUTHORIZED)) )
     	
     	.authorizeHttpRequests(auth -> auth
     			.requestMatchers(HttpMethod.POST, "/api/v1/users/register", "/api/v1/auth/login").permitAll()
