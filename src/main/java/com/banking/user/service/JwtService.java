@@ -1,9 +1,11 @@
 package com.banking.user.service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -13,8 +15,14 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService 
 {
-	private final SecretKey secretKey = Keys.hmacShaKeyFor( "my-super-secret-key-for-banking-service-2026".getBytes());
-	private final long expirationTime = 1000*60*60; //1 hour
+	private final SecretKey secretKey;
+	private final long expirationTime;
+	
+	public JwtService(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") long expirationTime)
+	{
+		this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+		this.expirationTime = expirationTime;
+	}
 	
 	public String generateToken(String username, String role)
 	{

@@ -67,7 +67,7 @@ public class GlobalExceptionHandler
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex, WebRequest request)
 	{
-		ErrorResponse errorResponse = ErrorResponse.builder()
+		ErrorResponse errorResponse = ErrorResponse.builder()	
 				.timestamp(OffsetDateTime.now())
 				.status(HttpStatus.NOT_FOUND.value())
 				.error(HttpStatus.NOT_FOUND.getReasonPhrase())
