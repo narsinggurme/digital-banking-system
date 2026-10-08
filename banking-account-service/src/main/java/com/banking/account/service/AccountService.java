@@ -1,6 +1,8 @@
 package com.banking.account.service;
 
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
 
 import org.springframework.stereotype.Service;
 
@@ -8,6 +10,7 @@ import com.banking.account.dto.AccountCreateRequest;
 import com.banking.account.dto.AccountResponse;
 import com.banking.account.entity.Account;
 import com.banking.account.entity.AccountStatus;
+import com.banking.account.exception.AccountNotFoundException;
 import com.banking.account.repository.AccountRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -49,6 +52,58 @@ public class AccountService
 				.updatedAt(savedAccount.getUpdatedAt())
 				.build();
 	}
+
+	public AccountResponse getAccountById(Long id)
+	{
+		Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + id));
+		return AccountResponse.builder()
+				.id(account.getId())
+				.accountNumber(account.getAccountNumber())
+				.customerId(account.getCustomerId())
+				.accountType(account.getAccountType())
+				.balance(account.getBalance())
+				.currency(account.getCurrency())
+				.status(account.getStatus())
+				.createdAt(account.getCreatedAt())
+				.updatedAt(account.getUpdatedAt())
+				.build();
+	}
+
+	public List<AccountResponse> getAllAccounts()
+	{
+		return accountRepository.findAll()
+				.stream()
+				.map(account -> AccountResponse.builder()
+						.id(account.getId())
+						.accountNumber(account.getAccountNumber())
+						.customerId(account.getCustomerId())
+						.accountType(account.getAccountType())
+						.balance(account.getBalance())
+						.currency(account.getCurrency())
+						.status(account.getStatus())
+						.createdAt(account.getCreatedAt())
+						.updatedAt(account.getUpdatedAt())
+						.build())
+				.toList();
+	}
+
+	public AccountResponse getAccountByAccountNumber(String accountNumber)
+	{
+		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new AccountNotFoundException("Account not found with this account number: "+ accountNumber));
+
+		return AccountResponse.builder()
+				.id(account.getId())
+				.accountNumber(account.getAccountNumber())
+				.customerId(account.getCustomerId())
+				.accountType(account.getAccountType())
+				.balance(account.getBalance())
+				.currency(account.getCurrency())
+				.status(account.getStatus())
+				.createdAt(account.getCreatedAt())
+				.updatedAt(account.getUpdatedAt())
+				.build();
+	}
+
 	private String generateAccountNumber()
 	{
 		return String.valueOf(ThreadLocalRandom.current().nextLong(100_000_000_000L, 1_000_000_000_000L));
