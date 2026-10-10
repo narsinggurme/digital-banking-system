@@ -3,14 +3,16 @@ package com.banking.account.service;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 import org.springframework.stereotype.Service;
 
 import com.banking.account.dto.AccountCreateRequest;
 import com.banking.account.dto.AccountResponse;
+import com.banking.account.dto.AccountStatusUpdateRequest;
 import com.banking.account.entity.Account;
 import com.banking.account.entity.AccountStatus;
 import com.banking.account.exception.AccountNotFoundException;
+import com.banking.account.exception.DuplicateAccountException;
+import com.banking.account.exception.InvalidAccountStatusTransitionException;
 import com.banking.account.repository.AccountRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,12 @@ public class AccountService
 
 	public AccountResponse createAccount(AccountCreateRequest request)
 	{
+		
+		if (accountRepository.existsByCustomerIdAndAccountType(request.getCustomerId(), request.getAccountType()))
+		{
+			throw new DuplicateAccountException("Customer already has an account of type: " + request.getAccountType());
+		}
+		
 		String accountNumber;
 		do
 		{
@@ -102,6 +110,61 @@ public class AccountService
 				.createdAt(account.getCreatedAt())
 				.updatedAt(account.getUpdatedAt())
 				.build();
+	}
+	
+	public AccountResponse updateAccountStatus(Long id, AccountStatusUpdateRequest request)
+	{
+		Account account = accountRepository.findById(id).orElseThrow(()-> new AccountNotFoundException("Account not found with this id: " + id));
+		
+		validateStatusTransition(account.getStatus(), request.getStatus());
+
+		account.setStatus(request.getStatus());
+
+		Account updatedAccount = accountRepository.save(account);
+
+		return AccountResponse.builder()
+				.id(updatedAccount.getId())
+				.accountNumber(updatedAccount.getAccountNumber())
+				.customerId(updatedAccount.getCustomerId())
+				.accountType(updatedAccount.getAccountType())
+				.balance(updatedAccount.getBalance())
+				.currency(updatedAccount.getCurrency())
+				.status(updatedAccount.getStatus())
+				.createdAt(updatedAccount.getCreatedAt())
+				.updatedAt(updatedAccount.getUpdatedAt())
+				.build();
+	}
+	
+	public List<AccountResponse> getAccountsByCustomerId(Long customerId)
+	{
+		return accountRepository.findByCustomerId(customerId)
+				.stream()
+				.map(account -> AccountResponse.builder()
+						.id(account.getId())
+						.accountNumber(account.getAccountNumber())
+						.customerId(account.getCustomerId())
+						.accountType(account.getAccountType())
+						.balance(account.getBalance())
+						.currency(account.getCurrency())
+						.status(account.getStatus())
+						.createdAt(account.getCreatedAt())
+						.updatedAt(account.getUpdatedAt())
+						.build()).toList();
+	}
+	
+	private void validateStatusTransition(AccountStatus currentStatus, AccountStatus newStatus)
+	{
+		boolean isAllowed = switch (currentStatus)
+		{
+		case ACTIVE -> newStatus == AccountStatus.BLOCKED || newStatus == AccountStatus.CLOSED;
+		case BLOCKED -> newStatus == AccountStatus.CLOSED || newStatus == AccountStatus.ACTIVE;
+		case CLOSED -> false;
+		};
+		
+		if(!isAllowed)
+		{
+			throw new InvalidAccountStatusTransitionException("Invalid account status transition from " +currentStatus + " to "+ newStatus);
+		}
 	}
 
 	private String generateAccountNumber()

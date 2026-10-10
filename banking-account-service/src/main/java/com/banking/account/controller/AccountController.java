@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.banking.account.dto.AccountCreateRequest;
 import com.banking.account.dto.AccountResponse;
+import com.banking.account.dto.AccountStatusUpdateRequest;
 import com.banking.account.service.AccountService;
 
 import jakarta.validation.Valid;
@@ -54,11 +56,27 @@ public class AccountController
 		return ResponseEntity.ok(allAccounts);
 	}
 
-	@GetMapping("number/{accountNumber}")
+	@GetMapping("/number/{accountNumber}")
 	public ResponseEntity<AccountResponse> getAccountByAccountNumber(@PathVariable String accountNumber)
 	{
 		AccountResponse accountNumber2 = accountService.getAccountByAccountNumber(accountNumber);
 
 		return ResponseEntity.ok(accountNumber2);
 	}
+	
+	@PatchMapping("/{id}/status")
+	public ResponseEntity<AccountResponse> updateAccountStatus(@PathVariable Long id, @Valid @RequestBody AccountStatusUpdateRequest request)
+	{
+		AccountResponse response = accountService.updateAccountStatus(id, request);
+		return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/customer/{customerId}")
+	public ResponseEntity<List<AccountResponse>> getAccountsByCustomerId(@PathVariable Long customerId)
+	{
+		 List<AccountResponse> accountsByCustomerId = accountService.getAccountsByCustomerId(customerId);
+		 
+		 return ResponseEntity.ok(accountsByCustomerId);
+	}
+	
 }
