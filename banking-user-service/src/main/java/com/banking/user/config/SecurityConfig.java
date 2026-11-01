@@ -16,35 +16,34 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
-public class SecurityConfig 
+public class SecurityConfig
 {
-	private final  JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	PasswordEncoder passwordEncoder()
+	{
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception 
-    {
-    	http
-    	.csrf(csrf -> csrf.disable())
-    	.formLogin(form-> form.disable())
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
+	{
+		http
+				.csrf(csrf -> csrf.disable())
+				.formLogin(form -> form.disable())
+				.exceptionHandling(exception -> exception
+						.authenticationEntryPoint((request, response, authException) -> response
+								.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers(HttpMethod.POST, "/api/v1/users/register", "/api/v1/auth/login").permitAll()
+						.requestMatchers("/error").permitAll()
+						.requestMatchers("/api/v1/users/admin").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.GET, "/api/v1/users/profile").authenticated()
+						.requestMatchers(HttpMethod.GET, "/api/v1/users/{userId:\\d+}").hasRole("ADMIN")
+						.anyRequest().authenticated())
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-    	.exceptionHandling(exception ->  exception
-    			.authenticationEntryPoint((request,response, authExceptiion) -> 
-    			response.sendError( HttpServletResponse.SC_UNAUTHORIZED)) )
-    	
-    	.authorizeHttpRequests(auth -> auth
-    			.requestMatchers(HttpMethod.POST, "/api/v1/users/register", "/api/v1/auth/login").permitAll()
-    			.requestMatchers("/error").permitAll()
-    			.requestMatchers("/api/v1/users/admin").hasRole("ADMIN")
-    			.requestMatchers(HttpMethod.GET, "/api/v1/users/{userId}").hasRole("ADMIN")
-    			.anyRequest().authenticated()
-    			)
-    	.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-    	return http.build();
-    }
+		return http.build();
+	}
 }

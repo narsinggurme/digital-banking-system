@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController 
 {
-	
 	private final UserService userService;
 	
 	@PostMapping("/register")
@@ -53,6 +52,4 @@ public class UserController
 	{
 		return ResponseEntity.ok("Only ADMIN can access this end point");
 	}
-	
-
 }
